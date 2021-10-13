@@ -1,13 +1,21 @@
 package com.springboot.app.item.controller;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.logging.Logger;
 
 import com.springboot.app.item.model.Item;
 import com.springboot.app.item.model.service.ItemService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
+import org.springframework.core.env.Environment;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 //import org.springframework.cloud.client.circuitbreaker.CircuitBreakerFactory;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,14 +28,42 @@ import io.github.resilience4j.timelimiter.annotation.TimeLimiter;
 
 
 @RestController
+@RefreshScope
 public class ItemController {
     
+    private static Logger logger = Logger.getLogger(ItemController.class.getName());
+
     //@Autowired
     //private CircuitBreakerFactory cbFactory;
 
     @Autowired
+    private Environment environment;
+
+    @Autowired
     @Qualifier("feignService") // Select the bean for the implementation, just in case there is no one by default. This is optional.
     private ItemService itemService;
+
+    @Value("${configuration.environmentDescription}") // Fetch custom configuration from spring config sever
+    private String environmentDescription;
+
+
+
+    @GetMapping("/config")
+    public ResponseEntity<?> getConfig(){
+
+        logger.info(environmentDescription);
+
+        Map<String, String> configMap = new HashMap<>();
+        configMap.put("environmentDescription", environmentDescription);
+
+        if( environment.getActiveProfiles().length > 0 ){
+            configMap.put("environment", environment.getActiveProfiles()[0]);
+        }
+        
+        return new ResponseEntity<Map<String, String>>(configMap, HttpStatus.OK);
+    }
+
+
 
     @GetMapping("/items")
     public List<Item> getAllItems(@RequestParam(name="req-parameter", required = false) String reqParam,  /* All the filter params come from application.yml */
