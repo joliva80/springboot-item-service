@@ -7,6 +7,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.logging.Logger;
 
 import com.springboot.app.item.model.Item;
+import com.springboot.app.commonslib.model.entity.Product;
 import com.springboot.app.item.model.service.ItemService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,11 +17,16 @@ import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 //import org.springframework.cloud.client.circuitbreaker.CircuitBreakerFactory;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
@@ -34,13 +40,14 @@ public class ItemController {
     private static Logger logger = Logger.getLogger(ItemController.class.getName());
 
     //@Autowired
-    //private CircuitBreakerFactory cbFactory;
+    //private CircuitBreakerFactory cbFactory; // only for hystrix, not for resilience4j
 
     @Autowired
     private Environment environment;
 
     @Autowired
     @Qualifier("feignService") // Select the bean for the implementation, just in case there is no one by default. This is optional.
+    //@Qualifier("restTemplateService") // Select the bean for the implementation, just in case there is no one by default. This is optional.
     private ItemService itemService;
 
     @Value("${configuration.environmentDescription}") // Fetch custom configuration from spring config sever
@@ -98,5 +105,29 @@ public class ItemController {
     @GetMapping("/items/{id}/quantity={quantity}")
     public CompletableFuture<Item> getItemsByIdWithCircuitBreakAnnotation(@PathVariable Long id, @PathVariable Integer quantity){
         return CompletableFuture.supplyAsync(() -> itemService.findById(id, quantity)) ;
+    }
+
+
+    @PostMapping("/products")
+    @ResponseStatus(HttpStatus.CREATED)
+    public Product create(@RequestBody Product product){
+        Product newProduct = itemService.save(product); // Call product service api
+        return newProduct;
+    }
+
+
+    @PutMapping("/products/{id}")
+    @ResponseStatus(HttpStatus.CREATED)
+    public Product update(@RequestBody Product product, @PathVariable Long id)
+    {
+        Product newProduct = itemService.update(product, id); // Call product service api
+        return newProduct;
+    }
+
+
+    @DeleteMapping("/products/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(Long id){
+        itemService.delete(id);
     }
 }

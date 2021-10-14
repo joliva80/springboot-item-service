@@ -1,7 +1,10 @@
-package com.springboot.app.item.model;
+package com.springboot.app.item.model.entity;
 
 import java.util.Date;
 
+/**
+ * deprecated class as we are using the import import com.springboot.app.commonslib.model.entity.Product;
+ */
 public class Product {
    
     private Long id;
