@@ -108,7 +108,7 @@ public class ItemController {
     }
 
 
-    @PostMapping("/products")
+    @PostMapping("/items")
     @ResponseStatus(HttpStatus.CREATED)
     public Product create(@RequestBody Product product){
         Product newProduct = itemService.save(product); // Call product service api
@@ -116,7 +116,7 @@ public class ItemController {
     }
 
 
-    @PutMapping("/products/{id}")
+    @PutMapping("/items/{id}")
     @ResponseStatus(HttpStatus.CREATED)
     public Product update(@RequestBody Product product, @PathVariable Long id)
     {
@@ -125,9 +125,9 @@ public class ItemController {
     }
 
 
-    @DeleteMapping("/products/{id}")
+    @DeleteMapping("/items/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(Long id){
+    public void delete(@PathVariable Long id){
         itemService.delete(id);
     }
 }
