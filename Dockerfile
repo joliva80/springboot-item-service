@@ -1,5 +1,4 @@
-FROM openjdk:11
+FROM azul/zulu-openjdk:17
 VOLUME /tmp
-EXPOSE 8002
-ADD ./target/springboot-item-service-0.0.1-SNAPSHOT.jar service-item.jar
-ENTRYPOINT ["java","-jar","/service-item.jar"]
+ADD ./target/springboot-item-service-0.0.1-SNAPSHOT.jar item-service.jar
+ENTRYPOINT ["java","-jar","/item-service.jar"]
